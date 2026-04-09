@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import prisma from "../prisma/client";
+import logger from "../utils/logger";
 
 const router = Router();
 
@@ -31,12 +32,14 @@ router.get("/", async (req: Request, res: Response) => {
       amount: Math.abs(totals[userId] - fairShare),
     }));
 
+    logger.info("Fetched balance");
     return res.json({
       grandTotal,
       fairShare,
       balance,
     });
   } catch (error) {
+    logger.error(`Failed to calculate balance: ${error}`);
     return res.status(500).json({ error: "Failed to calculate balance" });
   }
 });

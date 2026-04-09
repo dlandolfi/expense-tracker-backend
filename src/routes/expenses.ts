@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import prisma from "../prisma/client";
+import logger from "../utils/logger";
 
 const router = Router();
 
@@ -10,8 +11,13 @@ router.get("/", async (req: Request, res: Response) => {
       include: { paidBy: true },
       orderBy: { date: "desc" },
     });
+
+    logger.info("Fetched all expenses");
+
     return res.json(expenses);
   } catch (error) {
+    logger.error(`Failed to fetch expenses: ${error}`);
+
     return res.status(500).json({ error: "Failed to fetch expenses" });
   }
 });
@@ -28,8 +34,15 @@ router.post("/", async (req: Request, res: Response) => {
       },
       include: { paidBy: true },
     });
+
+    logger.info(
+      `Created expense: ${description} for $${amount} by user ${paidById}`
+    );
+
     return res.status(201).json(expense);
   } catch (error) {
+    logger.error(`Failed to create expense: ${error}`);
+
     return res.status(500).json({ error: "Failed to create expense" });
   }
 });
@@ -41,8 +54,13 @@ router.delete("/:id", async (req: Request, res: Response) => {
     await prisma.expense.delete({
       where: { id: Number(id) },
     });
+
+    logger.info(`Deleted expense with id: ${id}`);
+
     return res.status(204).send();
   } catch (error) {
+    logger.error(`Failed to delete expense: ${error}`);
+
     return res.status(500).json({ error: "Failed to delete expense" });
   }
 });

@@ -72,6 +72,26 @@ docker compose down
 | ------ | ---------- | ----------------------------------- |
 | `GET`  | `/balance` | Get running total and who owes what |
 
+### GET /expenses — Response
+
+```json
+[
+  {
+    "id": 1,
+    "description": "Publix run",
+    "amount": "54.30",
+    "paidById": 1,
+    "category": "GROCERIES",
+    "date": "2026-04-13T12:00:00.000Z",
+    "paidBy": {
+      "id": 1,
+      "name": "Alice",
+      "email": "alice@example.com"
+    }
+  }
+]
+```
+
 ### POST /expenses — Request Body
 
 ```json
@@ -113,10 +133,13 @@ docker compose down
 
 ### `expenses`
 
-| Column        | Type     | Notes                  |
-| ------------- | -------- | ---------------------- |
-| `id`          | integer  | primary key            |
-| `description` | string   | e.g. "Groceries"       |
-| `amount`      | decimal  | e.g. 54.30             |
-| `paid_by`     | integer  | foreign key → users.id |
-| `date`        | datetime | when it was added      |
+| Column        | Type     | Notes                                |
+| ------------- | -------- | ------------------------------------ |
+| `id`          | integer  | primary key                          |
+| `description` | string   | e.g. "Groceries"                     |
+| `amount`      | decimal  | e.g. 54.30                           |
+| `paidById`    | integer  | foreign key → users.id               |
+| `category`    | enum     | see valid values below               |
+| `date`        | datetime | when it was added, defaults to now() |
+
+**Valid `category` values:** `GROCERIES`, `HOUSEHOLD`, `UTILITIES`, `SUBSCRIPTIONS`, `DINING`, `COFFEE`, `TRANSPORT`, `ENTERTAINMENT`, `OTHER`

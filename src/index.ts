@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 
 import expensesRoutes from "./routes/expenses";
 import balanceRoutes from "./routes/balance";
+import userRoutes from "./routes/users";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.get("/health", (req, res) => {
 
 app.use("/expenses", expensesRoutes);
 app.use("/balance", balanceRoutes);
+app.use("/users", userRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

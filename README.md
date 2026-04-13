@@ -50,6 +50,56 @@ curl http://localhost:3001/health
 docker compose down
 ```
 
+## API Routes
+
+### Users
+
+| Method | Endpoint | Description     |
+| ------ | -------- | --------------- |
+| `GET`  | `/users` | Fetch all users |
+
+### Expenses
+
+| Method   | Endpoint        | Description             |
+| -------- | --------------- | ----------------------- |
+| `GET`    | `/expenses`     | Fetch all expenses      |
+| `POST`   | `/expenses`     | Add a new expense       |
+| `DELETE` | `/expenses/:id` | Delete an expense by ID |
+
+### Balance
+
+| Method | Endpoint   | Description                         |
+| ------ | ---------- | ----------------------------------- |
+| `GET`  | `/balance` | Get running total and who owes what |
+
+### POST /expenses — Request Body
+
+```json
+{
+  "description": "Groceries",
+  "amount": 54.3,
+  "paidById": 1
+}
+```
+
+### GET /balance — Response
+
+```json
+{
+  "grandTotal": 138.6,
+  "fairShare": 69.3,
+  "balance": [
+    {
+      "userId": 1,
+      "paid": 138.6,
+      "balance": 69.3,
+      "status": "owed",
+      "amount": 69.3
+    }
+  ]
+}
+```
+
 ## Data Model
 
 ### `users`

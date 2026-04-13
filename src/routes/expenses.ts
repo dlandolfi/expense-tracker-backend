@@ -21,14 +21,14 @@ router.get("/", async (req: Request, res: Response) => {
 
 // Add a new expense
 router.post("/", async (req: Request, res: Response) => {
-  const { description, amount, paidById, category } = req.body;
+  const { description, amount, paidById } = req.body;
   try {
     const expense = await prisma.expense.create({
-      data: { description, amount, paidById, category },
+      data: { description, amount, paidById },
       include: { paidBy: true },
     });
     logger.info(
-      `Created expense: ${category} for $${amount} by user ${paidById}`
+      `Created expense: ${description} for $${amount} by user ${paidById}`
     );
     return res.status(201).json(expense);
   } catch (error) {

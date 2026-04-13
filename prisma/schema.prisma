@@ -12,18 +12,6 @@ datasource db {
   url = env("DATABASE_URL")
 }
 
-enum ExpenseCategory {
-  GROCERIES
-  HOUSEHOLD
-  UTILITIES
-  SUBSCRIPTIONS
-  DINING
-  COFFEE
-  TRANSPORT
-  ENTERTAINMENT
-  OTHER
-}
-
 model User {
   id       Int       @id @default(autoincrement())
   name     String
@@ -34,7 +22,6 @@ model User {
 model Expense {
   id          Int      @id @default(autoincrement())
   description String
-  category    ExpenseCategory @default(OTHER)
   amount      Decimal
   paidBy      User     @relation(fields: [paidById], references: [id])
   paidById    Int

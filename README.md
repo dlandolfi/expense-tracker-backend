@@ -76,9 +76,10 @@ docker compose down
 
 ```json
 {
-  "description": "Groceries",
+  "description": "Publix run",
   "amount": 54.3,
-  "paidById": 1
+  "paidById": 1,
+  "category": "GROCERIES"
 }
 ```
 

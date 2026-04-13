@@ -1,10 +1,10 @@
-import { Router, Request, Response } from "express";
-import prisma from "../prisma/client";
-import logger from "../utils/logger";
+import { Router, Request, Response } from 'express';
+import prisma from '../prisma/client';
+import logger from '../utils/logger';
 
 const router = Router();
 
-router.get("/", async (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const expenses = await prisma.expense.findMany({
       include: { paidBy: true },
@@ -28,11 +28,11 @@ router.get("/", async (req: Request, res: Response) => {
       userId,
       paid: totals[userId],
       balance: totals[userId] - fairShare,
-      status: totals[userId] - fairShare > 0 ? "owed" : "owes",
+      status: totals[userId] - fairShare > 0 ? 'owed' : 'owes',
       amount: Math.abs(totals[userId] - fairShare),
     }));
 
-    logger.info("Fetched balance");
+    logger.info('Fetched balance');
     return res.json({
       grandTotal,
       fairShare,
@@ -40,7 +40,7 @@ router.get("/", async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error(`Failed to calculate balance: ${error}`);
-    return res.status(500).json({ error: "Failed to calculate balance" });
+    return res.status(500).json({ error: 'Failed to calculate balance' });
   }
 });
 

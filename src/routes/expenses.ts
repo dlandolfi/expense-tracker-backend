@@ -5,13 +5,30 @@ import logger from '../utils/logger';
 const router = Router();
 
 // Get all expenses
+// Get all expenses
 router.get('/', async (req: Request, res: Response) => {
+  const { month } = req.query;
+
+  const where = month
+    ? {
+        date: {
+          gte: new Date(`${month}-01`),
+          lt: new Date(
+            new Date(`${month}-01`).getFullYear(),
+            new Date(`${month}-01`).getMonth() + 1,
+            1
+          ),
+        },
+      }
+    : {};
+
   try {
     const expenses = await prisma.expense.findMany({
+      where,
       include: { paidBy: true },
       orderBy: { date: 'desc' },
     });
-    logger.info('Fetched all expenses');
+    logger.info(`Fetched expenses${month ? ` for ${month}` : ''}`);
     return res.json(expenses);
   } catch (error) {
     logger.error(`Failed to fetch expenses: ${error}`);

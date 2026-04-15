@@ -5,8 +5,24 @@ import logger from '../utils/logger';
 const router = Router();
 
 router.get('/', async (req: Request, res: Response) => {
+  const { month } = req.query;
+
+  const where = month
+    ? {
+        date: {
+          gte: new Date(`${month}-01`),
+          lt: new Date(
+            new Date(`${month}-01`).getFullYear(),
+            new Date(`${month}-01`).getMonth() + 1,
+            1
+          ),
+        },
+      }
+    : {};
+
   try {
     const expenses = await prisma.expense.findMany({
+      where,
       include: { paidBy: true },
     });
 
@@ -32,12 +48,8 @@ router.get('/', async (req: Request, res: Response) => {
       amount: Math.abs(totals[userId] - fairShare),
     }));
 
-    logger.info('Fetched balance');
-    return res.json({
-      grandTotal,
-      fairShare,
-      balance,
-    });
+    logger.info(`Fetched balance${month ? ` for ${month}` : ''}`);
+    return res.json({ grandTotal, fairShare, balance });
   } catch (error) {
     logger.error(`Failed to calculate balance: ${error}`);
     return res.status(500).json({ error: 'Failed to calculate balance' });

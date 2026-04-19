@@ -5,7 +5,6 @@ import logger from '../utils/logger';
 const router = Router();
 
 // Get all expenses
-// Get all expenses
 router.get('/', async (req: Request, res: Response) => {
   const { month } = req.query;
 
@@ -66,6 +65,25 @@ router.delete('/:id', async (req: Request, res: Response) => {
   } catch (error) {
     logger.error(`Failed to delete expense: ${error}`);
     return res.status(500).json({ error: 'Failed to delete expense' });
+  }
+});
+
+router.put('/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { description, amount, paidById, category } = req.body;
+  try {
+    const expense = await prisma.expense.update({
+      where: { id: Number(id) },
+      data: { description, amount, paidById, category },
+      include: { paidBy: true },
+    });
+    logger.info(
+      `Updated expense ${id}: ${category} for $${amount} by user ${paidById}`
+    );
+    return res.json(expense);
+  } catch (err) {
+    logger.error(`Failed to update expense: ${err}`);
+    return res.status(500).json({ error: 'Failed to update expense' });
   }
 });
 

@@ -37,10 +37,10 @@ router.get('/', async (req: Request, res: Response) => {
 
 // Add a new expense
 router.post('/', async (req: Request, res: Response) => {
-  const { description, amount, paidById, category } = req.body;
+  const { description, amount, paidById, category, date } = req.body;
   try {
     const expense = await prisma.expense.create({
-      data: { description, amount, paidById, category },
+      data: { description, amount, paidById, category, date },
       include: { paidBy: true },
     });
     logger.info(
@@ -70,11 +70,11 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
 router.put('/:id', async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { description, amount, paidById, category } = req.body;
+  const { description, amount, paidById, category, date } = req.body;
   try {
     const expense = await prisma.expense.update({
       where: { id: Number(id) },
-      data: { description, amount, paidById, category },
+      data: { description, amount, paidById, category, date },
       include: { paidBy: true },
     });
     logger.info(

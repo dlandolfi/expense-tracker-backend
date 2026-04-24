@@ -45,7 +45,7 @@ router.post('/', async (req: Request, res: Response) => {
     return res.status(400).json({ error: z.treeifyError(result.error) });
   }
 
-  const { description, amount, paidById, category, date } = req.body;
+  const { description, amount, paidById, category, date } = result.data;
 
   try {
     const expense = await prisma.expense.create({
@@ -91,7 +91,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     return res.status(400).json({ error: z.treeifyError(result.error) });
   }
 
-  const { description, amount, paidById, category, date } = req.body;
+  const { description, amount, paidById, category, date } = result.data;
 
   try {
     const expense = await prisma.expense.update({

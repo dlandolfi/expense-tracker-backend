@@ -13,15 +13,15 @@ export const expenseCategories = [
 ] as const;
 
 export const createExpenseSchema = z.object({
-  description: z.string().optional(),
+  description: z.string().default(''),
   amount: z.number().positive(),
-  paidbyId: z.number().int().positive(),
+  paidById: z.number().int().positive(),
   category: z.enum(expenseCategories).default('OTHER'),
   date: z.string().optional(),
 });
 
 export const updateExpenseSchema = z.object({
-  description: z.string().optional(),
+  description: z.string().default(''),
   amount: z.number().positive().optional(),
   paidById: z.number().int().positive().optional(),
   category: z.enum(expenseCategories).optional(),

@@ -1,6 +1,9 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
+
 import prisma from '../prisma/client';
 import logger from '../utils/logger';
+import { createExpenseSchema, updateExpenseSchema } from '../schemas/expense';
 
 const router = Router();
 
@@ -37,10 +40,22 @@ router.get('/', async (req: Request, res: Response) => {
 
 // Add a new expense
 router.post('/', async (req: Request, res: Response) => {
-  const { description, amount, paidById, category, date } = req.body;
+  const result = createExpenseSchema.safeParse(req.body);
+  if (!result.success) {
+    return res.status(400).json({ error: z.treeifyError(result.error) });
+  }
+
+  const { description, amount, paidById, category, date } = result.data;
+
   try {
     const expense = await prisma.expense.create({
-      data: { description, amount, paidById, category, date },
+      data: {
+        description,
+        amount,
+        paidById,
+        category,
+        date: date ? new Date(date) : undefined,
+      },
       include: { paidBy: true },
     });
     logger.info(
@@ -68,13 +83,26 @@ router.delete('/:id', async (req: Request, res: Response) => {
   }
 });
 
+// Update an expense
 router.put('/:id', async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { description, amount, paidById, category, date } = req.body;
+  const result = updateExpenseSchema.safeParse(req.body);
+  if (!result.success) {
+    return res.status(400).json({ error: z.treeifyError(result.error) });
+  }
+
+  const { description, amount, paidById, category, date } = result.data;
+
   try {
     const expense = await prisma.expense.update({
       where: { id: Number(id) },
-      data: { description, amount, paidById, category, date },
+      data: {
+        description,
+        amount,
+        paidById,
+        category,
+        date: date ? new Date(date) : undefined,
+      },
       include: { paidBy: true },
     });
     logger.info(

@@ -1,14 +1,14 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-
 import prisma from '../prisma/client';
 import logger from '../utils/logger';
 import { createExpenseSchema, updateExpenseSchema } from '../schemas/expense';
+import { AppError } from '../middleware/errorHandler';
 
 const router = Router();
 
 // Get all expenses
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   const { month } = req.query;
 
   const where = month
@@ -33,13 +33,12 @@ router.get('/', async (req: Request, res: Response) => {
     logger.info(`Fetched expenses${month ? ` for ${month}` : ''}`);
     return res.json(expenses);
   } catch (error) {
-    logger.error(`Failed to fetch expenses: ${error}`);
-    return res.status(500).json({ error: 'Failed to fetch expenses' });
+    next(new AppError('Failed to fetch expenses', 500, error));
   }
 });
 
 // Add a new expense
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   const result = createExpenseSchema.safeParse(req.body);
   if (!result.success) {
     return res.status(400).json({ error: z.treeifyError(result.error) });
@@ -63,28 +62,12 @@ router.post('/', async (req: Request, res: Response) => {
     );
     return res.status(201).json(expense);
   } catch (error) {
-    logger.error(`Failed to create expense: ${error}`);
-    return res.status(500).json({ error: 'Failed to create expense' });
-  }
-});
-
-// Delete an expense
-router.delete('/:id', async (req: Request, res: Response) => {
-  const { id } = req.params;
-  try {
-    await prisma.expense.delete({
-      where: { id: Number(id) },
-    });
-    logger.info(`Deleted expense with id: ${id}`);
-    return res.status(204).send();
-  } catch (error) {
-    logger.error(`Failed to delete expense: ${error}`);
-    return res.status(500).json({ error: 'Failed to delete expense' });
+    next(new AppError('Failed to fetch expenses', 500, error));
   }
 });
 
 // Update an expense
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
   const result = updateExpenseSchema.safeParse(req.body);
   if (!result.success) {
@@ -109,10 +92,26 @@ router.put('/:id', async (req: Request, res: Response) => {
       `Updated expense ${id}: ${category} for $${amount} by user ${paidById}`
     );
     return res.json(expense);
-  } catch (err) {
-    logger.error(`Failed to update expense: ${err}`);
-    return res.status(500).json({ error: 'Failed to update expense' });
+  } catch (error) {
+    next(new AppError('Failed to fetch expenses', 500, error));
   }
 });
+
+// Delete an expense
+router.delete(
+  '/:id',
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    try {
+      await prisma.expense.delete({
+        where: { id: Number(id) },
+      });
+      logger.info(`Deleted expense with id: ${id}`);
+      return res.status(204).send();
+    } catch (error) {
+      next(new AppError('Failed to fetch expenses', 500, error));
+    }
+  }
+);
 
 export default router;

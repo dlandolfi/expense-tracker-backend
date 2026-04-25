@@ -3,10 +3,12 @@ import logger from '../utils/logger';
 
 export class AppError extends Error {
   status: number;
+  originalError: unknown;
 
-  constructor(message: string, status: number) {
+  constructor(message: string, status: number, originalError?: unknown) {
     super(message);
     this.status = status;
+    this.originalError = originalError;
   }
 }
 
@@ -19,7 +21,9 @@ export function errorHandler(
   const status = err.status ?? 500;
   const message = err.message ?? 'Internal server error';
 
-  logger.error(`${status} - ${message}`);
+  logger.error(
+    `${status} - ${message}${err.originalError ? `: ${err.originalError}` : ''}`
+  );
 
   return res.status(status).json({ error: message });
 }

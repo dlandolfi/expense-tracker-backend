@@ -1,18 +1,19 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
+
 import prisma from '../prisma/client';
 import logger from '../utils/logger';
+import { AppError } from '../middleware/errorHandler';
 
 const router = Router();
 
 // Get all users
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const users = await prisma.user.findMany();
     logger.info('Fetched all users');
     return res.json(users);
   } catch (error) {
-    logger.error(`Failed to fetch users: ${error}`);
-    return res.status(500).json({ error: 'Failed to fetch users' });
+    next(new AppError('Failed to fetch users', 500, error));
   }
 });
 

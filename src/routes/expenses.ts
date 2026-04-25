@@ -62,7 +62,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     );
     return res.status(201).json(expense);
   } catch (error) {
-    next(new AppError('Failed to fetch expenses', 500, error));
+    next(new AppError('Failed to create expenses', 500, error));
   }
 });
 
@@ -93,7 +93,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
     );
     return res.json(expense);
   } catch (error) {
-    next(new AppError('Failed to fetch expenses', 500, error));
+    next(new AppError('Failed to update expenses', 500, error));
   }
 });
 
@@ -109,7 +109,7 @@ router.delete(
       logger.info(`Deleted expense with id: ${id}`);
       return res.status(204).send();
     } catch (error) {
-      next(new AppError('Failed to fetch expenses', 500, error));
+      next(new AppError('Failed to delete expenses', 500, error));
     }
   }
 );

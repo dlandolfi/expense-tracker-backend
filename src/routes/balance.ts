@@ -1,10 +1,12 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
+
 import prisma from '../prisma/client';
 import logger from '../utils/logger';
+import { AppError } from '../middleware/errorHandler';
 
 const router = Router();
 
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   const { month } = req.query;
 
   const where = month
@@ -51,8 +53,7 @@ router.get('/', async (req: Request, res: Response) => {
     logger.info(`Fetched balance${month ? ` for ${month}` : ''}`);
     return res.json({ grandTotal, fairShare, balance });
   } catch (error) {
-    logger.error(`Failed to calculate balance: ${error}`);
-    return res.status(500).json({ error: 'Failed to calculate balance' });
+    next(new AppError('Failed to fetch balance', 500, error));
   }
 });
 

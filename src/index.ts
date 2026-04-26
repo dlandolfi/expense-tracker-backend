@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import helmet from 'helmet';
 
 import expensesRoutes from './routes/expenses';
 import balanceRoutes from './routes/balance';
@@ -17,6 +18,7 @@ app.use(
     origin: false,
   })
 );
+app.use(helmet());
 app.use(express.json());
 
 app.get('/health', (req, res) => {

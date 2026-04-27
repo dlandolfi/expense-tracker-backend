@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 
 import expensesRoutes from './routes/expenses';
 import balanceRoutes from './routes/balance';
@@ -13,12 +14,19 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 50,
+  message: { error: 'Too many requests, please try again later' },
+});
+
 app.use(
   cors({
     origin: false,
   })
 );
 app.use(helmet());
+app.use(limiter);
 app.use(express.json());
 
 app.get('/health', (req, res) => {

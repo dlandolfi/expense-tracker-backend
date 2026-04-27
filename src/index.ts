@@ -1,13 +1,13 @@
-import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import helmet from 'helmet';
+import express from 'express';
 import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 
-import expensesRoutes from './routes/expenses';
-import balanceRoutes from './routes/balance';
-import userRoutes from './routes/users';
 import { errorHandler } from './middleware/errorHandler';
+import balanceRoutes from './routes/balance';
+import expensesRoutes from './routes/expenses';
+import userRoutes from './routes/users';
 
 dotenv.config();
 

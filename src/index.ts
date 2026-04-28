@@ -4,8 +4,8 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 
-import { errorHandler } from './middleware/errorHandler';
 import { config } from './config';
+import { errorHandler } from './middleware/errorHandler';
 import balanceRoutes from './routes/balance';
 import expensesRoutes from './routes/expenses';
 import userRoutes from './routes/users';

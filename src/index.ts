@@ -4,6 +4,7 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 
+import { config } from './config';
 import { errorHandler } from './middleware/errorHandler';
 import balanceRoutes from './routes/balance';
 import expensesRoutes from './routes/expenses';
@@ -12,7 +13,7 @@ import userRoutes from './routes/users';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = config.PORT;
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,

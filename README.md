@@ -1,4 +1,43 @@
-# Expense Tracker Project
+# Expense Tracker — Backend
+
+A REST API for a shared two-user expense tracker. Built with Express.js and TypeScript, backed by PostgreSQL, and containerized with Docker.
+
+## Tech Stack
+
+- [Express.js](https://expressjs.com/) — REST API framework
+- [TypeScript](https://www.typescriptlang.org/) — Type safety
+- [PostgreSQL](https://www.postgresql.org/) — Database
+- [Prisma](https://www.prisma.io/) — ORM and migrations
+- [Docker](https://www.docker.com/) — Containerization
+- [Zod](https://zod.dev/) — Request validation
+- [Winston](https://github.com/winstonjs/winston) — Structured JSON logging
+- [Helmet](https://helmetjs.github.io/) — HTTP security headers
+- [Jest](https://jestjs.io/) + [Supertest](https://github.com/ladjs/supertest) — Testing
+
+## API Routes
+
+### Users
+
+| Method | Endpoint | Description     |
+| ------ | -------- | --------------- |
+| `GET`  | `/users` | Fetch all users |
+
+### Expenses
+
+| Method   | Endpoint                  | Description             |
+| -------- | ------------------------- | ----------------------- |
+| `GET`    | `/expenses`               | Fetch all expenses      |
+| `GET`    | `/expenses?month=YYYY-MM` | Fetch expenses by month |
+| `POST`   | `/expenses`               | Add a new expense       |
+| `PUT`    | `/expenses/:id`           | Update an expense       |
+| `DELETE` | `/expenses/:id`           | Delete an expense       |
+
+### Balance
+
+| Method | Endpoint                 | Description                         |
+| ------ | ------------------------ | ----------------------------------- |
+| `GET`  | `/balance`               | Get running total and who owes what |
+| `GET`  | `/balance?month=YYYY-MM` | Get balance for a specific month    |
 
 ## Getting Started
 
@@ -6,7 +45,7 @@
 
 - [Docker](https://www.docker.com/products/docker-desktop) installed on your machine
 
-### Running the App
+### Running Locally
 
 1. Clone the repo
 
@@ -15,7 +54,7 @@ git clone <repo-url>
 cd expense-tracker-backend
 ```
 
-2. Create a `.env` file in the `expense-tracker-backend` folder
+2. Create a `.env` file
 
 ```
 PORT=3001
@@ -23,6 +62,7 @@ POSTGRES_USER=expense_user
 POSTGRES_PASSWORD=yourchosenpassword
 POSTGRES_DB=expense_tracker
 DATABASE_URL=postgresql://expense_user:yourchosenpassword@db:5432/expense_tracker
+TEST_DATABASE_URL=postgresql://expense_user:yourchosenpassword@localhost:5432/expense_tracker_test
 ```
 
 3. Start the app
@@ -37,11 +77,28 @@ docker compose up --build
 docker compose exec backend npx prisma migrate deploy
 ```
 
-5. Test the API
+5. Seed users
+
+```bash
+docker compose exec db psql -U expense_user -d expense_tracker
+```
+
+```sql
+INSERT INTO "User" (name, email) VALUES ('User1', 'user1@example.com');
+INSERT INTO "User" (name, email) VALUES ('User2', 'user2@example.com');
+```
+
+6. Test the API
 
 ```bash
 curl http://localhost:3001/health
 # Expected: {"status":"ok"}
+```
+
+### Running Tests
+
+```bash
+npm test
 ```
 
 ### Stopping the App
@@ -50,96 +107,6 @@ curl http://localhost:3001/health
 docker compose down
 ```
 
-## API Routes
+## CI/CD
 
-### Users
-
-| Method | Endpoint | Description     |
-| ------ | -------- | --------------- |
-| `GET`  | `/users` | Fetch all users |
-
-### Expenses
-
-| Method   | Endpoint        | Description             |
-| -------- | --------------- | ----------------------- |
-| `GET`    | `/expenses`     | Fetch all expenses      |
-| `POST`   | `/expenses`     | Add a new expense       |
-| `DELETE` | `/expenses/:id` | Delete an expense by ID |
-
-### Balance
-
-| Method | Endpoint   | Description                         |
-| ------ | ---------- | ----------------------------------- |
-| `GET`  | `/balance` | Get running total and who owes what |
-
-### GET /expenses — Response
-
-```json
-[
-  {
-    "id": 1,
-    "description": "Publix run",
-    "amount": "54.30",
-    "paidById": 1,
-    "category": "GROCERIES",
-    "date": "2026-04-13T12:00:00.000Z",
-    "paidBy": {
-      "id": 1,
-      "name": "Alice",
-      "email": "alice@example.com"
-    }
-  }
-]
-```
-
-### POST /expenses — Request Body
-
-```json
-{
-  "description": "Publix run",
-  "amount": 54.3,
-  "paidById": 1,
-  "category": "GROCERIES"
-}
-```
-
-### GET /balance — Response
-
-```json
-{
-  "grandTotal": 138.6,
-  "fairShare": 69.3,
-  "balance": [
-    {
-      "userId": 1,
-      "paid": 138.6,
-      "balance": 69.3,
-      "status": "owed",
-      "amount": 69.3
-    }
-  ]
-}
-```
-
-## Data Model
-
-### `users`
-
-| Column  | Type    | Notes        |
-| ------- | ------- | ------------ |
-| `id`    | integer | primary key  |
-| `name`  | string  | e.g. "Alice" |
-| `email` | string  | unique       |
-
-### `expenses`
-
-| Column        | Type     | Notes                                |
-| ------------- | -------- | ------------------------------------ |
-| `id`          | integer  | primary key                          |
-| `description` | string   | e.g. "Groceries"                     |
-| `amount`      | decimal  | e.g. 54.30                           |
-| `paidById`    | integer  | foreign key → users.id               |
-| `category`    | enum     | see valid values below               |
-| `date`        | datetime | when it was added, defaults to now() |
-
-**Valid `category` values:** `GROCERIES`, `HOUSEHOLD`, `UTILITIES`, `SUBSCRIPTIONS`, `DINING`, `COFFEE`, `TRANSPORT`, `ENTERTAINMENT`, `OTHER`
+GitHub Actions runs the linter and full test suite on every pull request.
